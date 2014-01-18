@@ -44,6 +44,7 @@ import socket
 import subprocess
 import urllib2
 import urlparse
+import logging
 
 from dulwich.errors import (
     GitProtocolError,
@@ -63,6 +64,7 @@ from dulwich.pack import (
     write_pack_objects,
     )
 
+log = logging.getLogger(__name__)
 
 # Python 2.6.6 included these in urlparse.uses_netloc upstream. Do
 # monkeypatching to enable similar behaviour in earlier Pythons:
@@ -290,6 +292,8 @@ class GitClient(object):
             else:
                 if cb is not None:
                     cb(pkt)
+                else:
+                    log.warning("sideband channel %s has no handler", channel)
 
     def _handle_receive_pack_head(self, proto, capabilities, old_refs, new_refs):
         """Handle the head of a 'git-receive-pack' request.
