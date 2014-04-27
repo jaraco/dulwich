@@ -954,12 +954,22 @@ class HttpGitClient(GitClient):
         self._handle_upload_pack_head(req_proto,
             negotiated_capabilities, graph_walker, wants,
             lambda: False)
+        #save_response(req_data.getvalue())
         resp = self._smart_request("git-upload-pack", url,
             data=req_data.getvalue())
         resp_proto = Protocol(resp.read, None)
         self._handle_upload_pack_tail(resp_proto, negotiated_capabilities,
             graph_walker, pack_data, progress)
         return refs
+
+
+def save_response(resp):
+    with open('req.dat', 'wb') as saved_req:
+        saved_req.write(resp)
+    print("""
+        curl -H "Content-Type: application/x-git-upload-pack-request" --data-binary @req.dat %(url)s/git-upload-pack -v --insecure
+        """ % vars())
+    raise SystemExit(1)
 
 
 def get_transport_and_path(uri, **kwargs):
